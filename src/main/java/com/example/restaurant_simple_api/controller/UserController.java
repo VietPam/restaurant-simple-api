@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,6 +95,46 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse("An error occurred while fetching the profile.", null, false));
         }
+    }
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("location") String location,
+            @RequestParam(value = "profilePic", required = false) MultipartFile profilePic) {
+
+        // Extract user ID from the token
+        Long userId = jwtUtil.extractUserId(token);
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid token", "data", null, "status", false));
+        }
+
+        // Create a new User object with updated details
+        User userDetails = new User();
+        userDetails.setFirstName(firstName);
+        userDetails.setLastName(lastName);
+        userDetails.setPhoneNumber(phoneNumber);
+        userDetails.setLocation(location);
+
+        // Update the user profile with the provided details and profile picture
+        User updatedUser = userService.updateProfile(userId, userDetails, profilePic);
+        if (updatedUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found", "data", null, "status", false));
+        }
+
+        // Check if profile picture is not null
+        if (updatedUser.getProfilePic() != null) {
+            String profilePicUrl = updatedUser.getProfilePic();
+            updatedUser.setProfilePic(profilePicUrl);
+        }
+
+        return ResponseEntity.ok(Map.of("message", "User profile updated successfully", "data", updatedUser, "status", true));
     }
 
 }
