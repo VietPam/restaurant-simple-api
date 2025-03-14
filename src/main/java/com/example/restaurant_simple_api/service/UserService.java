@@ -48,4 +48,8 @@ public class UserService {
             throw new RuntimeException("User not found.");
         }
     }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 }

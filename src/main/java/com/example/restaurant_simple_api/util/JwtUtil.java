@@ -1,5 +1,6 @@
 package com.example.restaurant_simple_api.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -33,4 +34,20 @@ public class JwtUtil {
                 .signWith(secretKey, SignatureAlgorithm.HS256) // Use the secure key
                 .compact();
     }
+    public Long extractUserId(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7); // Remove "Bearer " prefix
+        }
+        System.out.println("token ================ "+ token);
+        return extractClaim(token, claims -> Long.parseLong(claims.get("userId").toString()));
+    }
+
+    private <T> T extractClaim(String token, java.util.function.Function<Claims, T> claimsResolver) {
+        final Claims claims = Jwts.parser()
+                .setSigningKey(secretKey) // Use the secure key
+                .parseClaimsJws(token)
+                .getBody();
+        return claimsResolver.apply(claims);
+    }
+
 }
