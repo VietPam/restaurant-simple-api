@@ -116,4 +116,30 @@ public class UserService {
         message.setText("Your OTP code is: " + otp);
         mailSender.send(message);
     }
+
+    public ApiResponse verifyOtpAndUpdatePassword(String email, String otp, String newPassword) {
+        String storedOtp = otpStore.get(email);
+        if (storedOtp != null && storedOtp.equals(otp)) {
+            // Remove the OTP after successful verification
+            otpStore.remove(email);
+
+            // Find the user by email
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                // Encode the new password
+                String encodedPassword = passwordEncoder.encode(newPassword);
+                user.setPassword(encodedPassword);
+
+                // Save the updated user
+                userRepository.save(user); // Save the updated user entity
+
+                return new ApiResponse("Password updated successfully.", null, true);
+            } else {
+                return new ApiResponse("User not found.", null, false);
+            }
+        }
+        return new ApiResponse("Invalid OTP.", null, false);
+    }
 }

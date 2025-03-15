@@ -143,4 +143,14 @@ public class UserController {
         ApiResponse response = userService.sendOtp(email);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/verify-otp-and-update-password")
+    public ResponseEntity<ApiResponse> verifyOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        String newPassword = request.get("newPassword");
+
+        ApiResponse response = userService.verifyOtpAndUpdatePassword(email, otp, newPassword);
+        return ResponseEntity.ok(response);
+    }
+
 }
