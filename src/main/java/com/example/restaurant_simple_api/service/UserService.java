@@ -142,4 +142,28 @@ public class UserService {
         }
         return new ApiResponse("Invalid OTP.", null, false);
     }
+
+    public ApiResponse changePassword(String token, String oldPassword, String newPassword) {
+        Long userId = jwtUtil.extractUserId(token); // Extract user ID from token
+
+        if (userId == null) {
+            return new ApiResponse("Invalid token.", null, false);
+        }
+
+        User user = userRepository.findById(userId).orElse(null); // Fetch user by ID
+        if (user == null) {
+            return new ApiResponse("User not found.", null, false);
+        }
+
+        // Check if the old password matches
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return new ApiResponse("Old password is incorrect.", null, false);
+        }
+
+        // Encode the new password and update
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return new ApiResponse("Password updated successfully.", null, true);
+    }
 }

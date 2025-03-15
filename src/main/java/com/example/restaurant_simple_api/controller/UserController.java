@@ -152,5 +152,14 @@ public class UserController {
         ApiResponse response = userService.verifyOtpAndUpdatePassword(email, otp, newPassword);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse> changePassword(
+            @RequestHeader("Authorization") String token,
+            @RequestBody Map<String, String> request) {
+        String old_pass = request.get("oldPassword");
+        String new_pass = request.get("newPassword");
 
+        ApiResponse response = userService.changePassword(token, old_pass,new_pass);
+        return ResponseEntity.status(response.isStatus() ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(response);
+    }
 }
