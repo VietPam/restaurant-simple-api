@@ -137,4 +137,10 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "User profile updated successfully", "data", updatedUser, "status", true));
     }
 
+    @PostMapping("/send-otp")
+    public ResponseEntity<ApiResponse> sendOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        ApiResponse response = userService.sendOtp(email);
+        return ResponseEntity.ok(response);
+    }
 }
