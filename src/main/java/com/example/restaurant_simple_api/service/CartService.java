@@ -1,6 +1,8 @@
 package com.example.restaurant_simple_api.service;
 
+import com.example.restaurant_simple_api.dto.CartItemResponseDTO;
 import com.example.restaurant_simple_api.model.Cart;
+import com.example.restaurant_simple_api.model.MenuItem;
 import com.example.restaurant_simple_api.model.Restaurant;
 import com.example.restaurant_simple_api.model.User;
 import com.example.restaurant_simple_api.repository.CartRepository;
@@ -84,36 +86,6 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    public List<CartItemResponseDTO> getCartItemsByUserId(Long userId) {
-        List<Cart> cartItems = cartRepository.findByUser_UserIdAndStatus(userId, 1);
-        List<CartItemResponseDTO> responseDTOs = new ArrayList<>();
-
-        for (Cart cart : cartItems) {
-            MenuItem menuItem = menuItemRepository.findById(cart.getMenuItem().getItemId())
-                    .orElseThrow(() -> new RuntimeException("Menu item not found"));
-
-            Double currentOfferDiscountRate = 0.0;
-            if (cart.getRestaurant().getRestaurantDetails() != null) {
-                currentOfferDiscountRate = cart.getRestaurant().getRestaurantDetails().getCurrentOfferDiscountRate();
-            }
-
-            responseDTOs.add(new CartItemResponseDTO(
-                    cart.getCartId(),
-                    cart.getUser().getUserId(),
-                    cart.getRestaurant().getRestaurantId(),
-                    cart.getMenuItem().getItemId(),
-                    cart.getQuantity(),
-                    menuItem.getName(),
-                    menuItem.getPrice(),
-                    menuItem.getDescription(),
-                    cart.getTotalPrice(),
-                    menuItem.getItemImage(),
-                    currentOfferDiscountRate // Use the checked value
-            ));
-        }
-        return responseDTOs;
-    }
-
     public boolean removeCartItem(Long cartId, Long userId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
@@ -134,8 +106,5 @@ public class CartService {
         }
         return false;
     }
-
-
-
 
 }
