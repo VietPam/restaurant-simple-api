@@ -1,7 +1,5 @@
 package com.example.restaurant_simple_api.controller;
 
-import com.example.restaurant_simple_api.dto.CartItemResponseDTO;
-import com.example.restaurant_simple_api.dto.OrderedItemsResponse;
 import com.example.restaurant_simple_api.service.CartService;
 import com.example.restaurant_simple_api.util.ApiResponse;
 import com.example.restaurant_simple_api.util.JwtUtil;
